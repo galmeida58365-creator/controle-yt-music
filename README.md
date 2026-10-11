@@ -92,6 +92,10 @@ Isso é feito pela API oficial do YouTube, que é gratuita, mas exige criar uma 
 2. No topo, clique no seletor de projetos → **Novo projeto** → dê um nome (ex.: `controle-yt-music`) → **Criar**.
    Confirme que o projeto novo está selecionado.
 3. Menu ☰ → **APIs e serviços → Biblioteca** → pesquise **YouTube Data API v3** → **Ativar**.
+
+   ⚠️ **Não pule este item!** É o erro mais comum: sem a API ativada, o login funciona,
+   mas a aba Listas não mostra nenhuma playlist. Confira se o botão mudou para **Gerenciar**
+   (isso quer dizer que ativou). Depois de ativar, pode levar alguns minutos para funcionar.
 4. Menu ☰ → **APIs e serviços → Tela de consentimento OAuth** (ou *Google Auth Platform*):
    - Tipo de usuário: **Externo**.
    - Preencha o nome do app e seu e-mail (o resto pode deixar em branco) e salve.
@@ -125,6 +129,7 @@ Isso é feito pela API oficial do YouTube, que é gratuita, mas exige criar uma 
 | Aviso "O YouTube Music não respondeu" | O YouTube Music Desktop está fechado ou o plugin **API Server** está desligado (Passo 2). |
 | Botões não fazem nada | No plugin API Server, a opção de autorização precisa estar em **Não autorizar**. |
 | "Python não encontrado" | Reinstale o Python marcando **Add python.exe to PATH**. |
+| Aba Listas não mostra as playlists | Leia a mensagem que aparece na aba: ela diz o motivo. O mais comum é a **YouTube Data API v3** não estar ativada (passo 7.1, item 3). |
 | Aba Listas diz "login expirado" | Rode o `configurar_login.bat` de novo. |
 | Volume no app diferente do PC | Limitação da API do YouTube Music: o app mostra o último volume escolhido nele. |
 
