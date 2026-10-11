@@ -235,24 +235,65 @@ def _refresh_access_token(tok):
     _salvar_token(tok)
     return tok
 
+erro_token = None  # motivo da última falha ao obter/renovar o token (mostrado no app)
+
+def _explicar_erro_token(e):
+    txt = str(e)
+    if "invalid_grant" in txt:
+        return "O login expirou ou foi cancelado. No PC, rode o configurar_login.bat de novo."
+    if "invalid_client" in txt or "unauthorized_client" in txt:
+        return ("O Client ID/Secret está errado ou foi apagado no Google Cloud. "
+                "Apague o oauth_client.json e o oauth.json e rode o configurar_login.bat de novo.")
+    return "Não consegui renovar o login (" + txt[:120] + "). Rode o configurar_login.bat de novo."
+
 def obter_access_token():
     """Retorna um access_token válido (renova se estiver perto de expirar). None se não houver login."""
+    global erro_token
+    erro_token = None
     if not os.path.exists(AUTH_FILE):
+        erro_token = "Login das playlists não configurado. No PC, rode o configurar_login.bat (passo 7 do README)."
         return None
     try:
         with open(AUTH_FILE, encoding="utf-8") as f:
             tok = json.load(f)
         if "refresh_token" not in tok:
             return tok.get("access_token")  # formato antigo (navegador), não serve pra API oficial
+        if not os.path.exists(CLIENT_FILE):
+            erro_token = "Falta o arquivo oauth_client.json. No PC, rode o configurar_login.bat."
+            return None
         if int(tok.get("expires_at", 0)) - 60 < int(time.time()):
             tok = _refresh_access_token(tok)
         return tok.get("access_token")
     except Exception as e:
         print("[TOKEN] " + str(e))
+        erro_token = _explicar_erro_token(e)
         return None
+
+def _explicar_erro_api(r):
+    """Traduz o erro da API do YouTube numa mensagem que diz o que fazer."""
+    try:
+        err = r.json().get("error", {})
+    except Exception:
+        err = {}
+    motivos = [x.get("reason", "") for x in err.get("errors", []) or []]
+    motivos += [x.get("reason", "") for x in err.get("details", []) or [] if isinstance(x, dict)]
+    msg = err.get("message", "")
+    if "accessNotConfigured" in motivos or "SERVICE_DISABLED" in motivos or "has not been used" in msg:
+        return ("A YouTube Data API v3 não está ativada no projeto do Google Cloud (passo 7.1, item 3). "
+                "Se acabou de ativar, espere uns 5 minutos e tente de novo.")
+    if "quotaExceeded" in motivos:
+        return "O limite diário da API do YouTube acabou. Tente de novo amanhã."
+    if "channelNotFound" in motivos or r.status_code == 404:
+        return ("Essa conta Google não tem canal do YouTube, por isso não tem playlists. "
+                "Crie um canal em youtube.com (Criar canal) ou faça o login com outra conta.")
+    if ("insufficientPermissions" in motivos or "ACCESS_TOKEN_SCOPE_INSUFFICIENT" in motivos
+            or r.status_code == 401):
+        return "O login não tem permissão para ler as playlists. Rode o configurar_login.bat de novo."
+    return "Erro da API do YouTube (HTTP " + str(r.status_code) + "): " + (msg[:150] or "sem detalhes")
 
 def _yt_get(path, params):
     """GET na API do YouTube com renovação automática do token em caso de 401."""
+    global erro_token
     at = obter_access_token()
     if not at:
         return None
@@ -266,16 +307,19 @@ def _yt_get(path, params):
             r = requests.get(YT_API + path, params=params, headers={"Authorization": "Bearer " + at}, timeout=10)
         except Exception as e:
             print("[YT API] " + str(e))
+            erro_token = _explicar_erro_token(e)
+            return None
     return r
 
 def obter_playlists():
     try:
         r = _yt_get("playlists", {"part": "snippet,contentDetails", "mine": "true", "maxResults": 50})
         if r is None:
-            return {"auth": False, "playlists": []}
+            print("[PLAYLISTS] " + str(erro_token))
+            return {"auth": False, "playlists": [], "erro": erro_token}
         if r.status_code != 200:
-            print("[PLAYLISTS] HTTP " + str(r.status_code) + " " + r.text[:120])
-            return {"auth": False, "playlists": []}
+            print("[PLAYLISTS] HTTP " + str(r.status_code) + " " + r.text[:300])
+            return {"auth": False, "playlists": [], "erro": _explicar_erro_api(r)}
         out = []
         for it in r.json().get("items", []):
             sn = it.get("snippet", {})
@@ -290,7 +334,7 @@ def obter_playlists():
         return {"auth": True, "playlists": out}
     except Exception as e:
         print("[PLAYLISTS] " + str(e))
-        return {"auth": False, "playlists": []}
+        return {"auth": False, "playlists": [], "erro": "Erro inesperado: " + str(e)[:150]}
 
 def _limpar_artista(nome):
     if not nome:
@@ -1206,11 +1250,11 @@ HTML = """
                 .then(function(r) { return r.json(); })
                 .then(function(data) {
                     if (!data.auth) {
-                        lista.innerHTML = '<p class="msg">Login expirado ou ausente.<br>No PC, atualize o login e reinicie o servidor.</p>';
+                        lista.innerHTML = '<p class="msg">' + escapar(data.erro || 'Login das playlists não configurado. No PC, rode o configurar_login.bat.') + '</p>';
                         return;
                     }
                     if (!Array.isArray(data.playlists) || data.playlists.length === 0) {
-                        lista.innerHTML = '<p class="msg">Nenhuma playlist apareceu.<br>Se você tem playlists salvas, o login provavelmente expirou.<br>No PC: refaça o login OAuth (oauth.json) e reinicie o servidor.</p>';
+                        lista.innerHTML = '<p class="msg">Nenhuma playlist encontrada nesta conta.<br>Confira se o login foi feito com a mesma conta do YouTube Music (rode o configurar_login.bat de novo para trocar).</p>';
                         return;
                     }
                     var html = '';
