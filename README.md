@@ -110,15 +110,6 @@ Isso é feito pela API oficial do YouTube, que é gratuita, mas exige criar uma 
 4. Volte na janela preta e aperte **Enter**.
 5. Feche e abra de novo o `iniciar_servidor.bat`.
 
-### 7.3 Evitar que o login expire a cada 7 dias
-
-Enquanto o projeto do Google estiver em **modo de teste**, o Google derruba o login a cada 7 dias.
-Para não ter que refazer toda semana:
-
-- Em **Tela de consentimento OAuth / Público-alvo**, clique em **Publicar app** → **Confirmar**.
-  (Não precisa enviar para verificação; para uso pessoal basta publicar.)
-- Depois de publicar, rode o `configurar_login.bat` mais uma vez.
-
 > 🔒 Os arquivos `oauth.json` e `oauth_client.json` são o seu login. **Não compartilhe.**
 > Eles já estão no `.gitignore` e não vão para o GitHub.
 
@@ -134,7 +125,7 @@ Para não ter que refazer toda semana:
 | Aviso "O YouTube Music não respondeu" | O YouTube Music Desktop está fechado ou o plugin **API Server** está desligado (Passo 2). |
 | Botões não fazem nada | No plugin API Server, a opção de autorização precisa estar em **Não autorizar**. |
 | "Python não encontrado" | Reinstale o Python marcando **Add python.exe to PATH**. |
-| Aba Listas diz "login expirado" | Rode o `configurar_login.bat` de novo (e veja o passo 7.3). |
+| Aba Listas diz "login expirado" | Rode o `configurar_login.bat` de novo. |
 | Volume no app diferente do PC | Limitação da API do YouTube Music: o app mostra o último volume escolhido nele. |
 
 ---
