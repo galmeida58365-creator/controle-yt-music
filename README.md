@@ -30,13 +30,13 @@ Celular (app ou navegador)  ──Wi-Fi──>  servidor.py (no PC)  ──>  Yo
 
 O servidor conversa com o YouTube Music por um plugin que vem desligado.
 
-1. No YouTube Music Desktop, abra o menu **Plugins** (no topo da janela; se não aparecer, aperte `Alt`).
+1. No YouTube Music Desktop, abra o menu **Plugins** (no topo da janela).
 2. Ative **API Server**.
 3. No mesmo menu, entre nas opções do **API Server** e confira:
    - **Port**: `26538`
-   - **Authorization strategy**: **No authorization**
+   - Na opção de autorização: **Não autorizar**
 
-   ⚠️ Sem o "No authorization", o servidor não consegue controlar o player.
+   ⚠️ Sem o "Não autorizar", o servidor não consegue controlar o player.
 
 ## Passo 3: Instalar o Python
 
@@ -132,7 +132,7 @@ Para não ter que refazer toda semana:
 | Conectava e parou de conectar | O IP do PC mudou. Veja o endereço novo na janela do servidor e corrija no app. |
 | Não conecta nunca | Firewall: no Windows, a rede Wi-Fi tem que estar como **Rede privada** (*Configurações → Rede e Internet → Wi-Fi → propriedades*). Teste também abrir `http://IP:5000` no navegador do celular. |
 | Aviso "O YouTube Music não respondeu" | O YouTube Music Desktop está fechado ou o plugin **API Server** está desligado (Passo 2). |
-| Botões não fazem nada | No plugin API Server, a *Authorization strategy* precisa ser **No authorization**. |
+| Botões não fazem nada | No plugin API Server, a opção de autorização precisa estar em **Não autorizar**. |
 | "Python não encontrado" | Reinstale o Python marcando **Add python.exe to PATH**. |
 | Aba Listas diz "login expirado" | Rode o `configurar_login.bat` de novo (e veja o passo 7.3). |
 | Volume no app diferente do PC | Limitação da API do YouTube Music: o app mostra o último volume escolhido nele. |
