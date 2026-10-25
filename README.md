@@ -104,7 +104,23 @@ Isso é feito pela API oficial do YouTube, que é gratuita, mas exige criar uma 
    - Tipo de aplicativo: **TVs e dispositivos de entrada limitada**.
    - Clique em **Criar** e copie o **ID do cliente** e a **Chave secreta do cliente**.
 
-### 7.2 Fazer o login
+### 7.2 Publicar o app (senão o login expira a cada 7 dias)
+
+Enquanto o projeto do Google estiver em **modo de teste**, o Google derruba o login a cada **7 dias**.
+Para publicar, o Google pede uma página inicial e uma política de privacidade. Você pode usar as deste projeto:
+
+1. Menu ☰ → **Google Auth Platform → Branding** (ou *Tela de consentimento OAuth*):
+   - **Página inicial do aplicativo:** `https://galmeida58365-creator.github.io/controle-yt-music/`
+   - **Link da Política de Privacidade:** `https://galmeida58365-creator.github.io/controle-yt-music/PRIVACIDADE.html`
+   - **Domínios autorizados → Adicionar domínio:** `galmeida58365-creator.github.io`
+   - Evite "YouTube" ou "Google" no **Nome do app** (ex.: use `Controle de Musica`). Clique em **Salvar**.
+2. Menu ☰ → **Google Auth Platform → Público-alvo** → **Publicar app** → **Confirmar**.
+   O status deve mudar de *Testando* para **Em produção**. Não precisa enviar para verificação.
+
+> Se você já fez o login antes de publicar, rode o `configurar_login.bat` mais uma vez depois de publicar.
+> O login antigo foi criado em modo de teste e continuaria expirando.
+
+### 7.3 Fazer o login
 
 1. Dê dois cliques em **`configurar_login.bat`**.
 2. Cole o **ID do cliente** e a **Chave secreta** quando pedir.
@@ -130,7 +146,8 @@ Isso é feito pela API oficial do YouTube, que é gratuita, mas exige criar uma 
 | Botões não fazem nada | No plugin API Server, a opção de autorização precisa estar em **Não autorizar**. |
 | "Python não encontrado" | Reinstale o Python marcando **Add python.exe to PATH**. |
 | Aba Listas não mostra as playlists | Leia a mensagem que aparece na aba: ela diz o motivo. O mais comum é a **YouTube Data API v3** não estar ativada (passo 7.1, item 3). |
-| Aba Listas diz "login expirado" | Rode o `configurar_login.bat` de novo. |
+| Aba Listas diz "login expirado" | Rode o `configurar_login.bat` de novo. Se isso acontece **toda semana**, o app ainda está em modo de teste: faça o passo 7.2. |
+| Pasta do projeto dentro do **OneDrive** e o login some às vezes | O OneDrive pode deixar os arquivos "só na nuvem" e o servidor não consegue lê-los. Clique com o botão direito na pasta do projeto → **Sempre manter neste dispositivo** (ou deixe o projeto fora do OneDrive). |
 | Volume no app diferente do PC | Limitação da API do YouTube Music: o app mostra o último volume escolhido nele. |
 
 ---

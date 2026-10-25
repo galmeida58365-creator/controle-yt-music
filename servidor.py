@@ -249,7 +249,7 @@ def _explicar_erro_token(e):
     txt = str(e)
     if "invalid_grant" in txt:
         return ("O login expirou ou foi cancelado. No PC, rode o configurar_login.bat de novo. "
-                "Se isso acontece toda semana, veja o passo 7.3 do README (publicar o app no Google Cloud).")
+                "Se isso acontece toda semana, veja o passo 7.2 do README (publicar o app no Google Cloud).")
     if "invalid_client" in txt or "unauthorized_client" in txt:
         return ("O Client ID/Secret está errado ou foi apagado no Google Cloud. "
                 "Apague o oauth_client.json e o oauth.json e rode o configurar_login.bat de novo.")
