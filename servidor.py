@@ -230,6 +230,14 @@ def _refresh_access_token(tok):
         cfg = json.load(f)
     creds = OAuthCredentials(client_id=cfg["client_id"], client_secret=cfg["client_secret"])
     novo = creds.refresh_token(tok["refresh_token"])
+    # O Google devolve {"error": "invalid_grant", ...} quando o login expirou/foi revogado
+    # (sem lançar exceção). Antes isso era gravado junto com o token velho e o erro ficava escondido.
+    if not isinstance(novo, dict) or "error" in novo or not novo.get("access_token"):
+        erro = novo.get("error", "") if isinstance(novo, dict) else ""
+        desc = novo.get("error_description", "") if isinstance(novo, dict) else ""
+        raise Exception((erro + ": " + desc).strip(": ") or "falha ao renovar o token")
+    tok.pop("error", None)
+    tok.pop("error_description", None)
     tok.update(novo)
     tok["expires_at"] = int(time.time()) + int(novo.get("expires_in", 3600))
     _salvar_token(tok)
@@ -240,7 +248,8 @@ erro_token = None  # motivo da última falha ao obter/renovar o token (mostrado 
 def _explicar_erro_token(e):
     txt = str(e)
     if "invalid_grant" in txt:
-        return "O login expirou ou foi cancelado. No PC, rode o configurar_login.bat de novo."
+        return ("O login expirou ou foi cancelado. No PC, rode o configurar_login.bat de novo. "
+                "Se isso acontece toda semana, veja o passo 7.3 do README (publicar o app no Google Cloud).")
     if "invalid_client" in txt or "unauthorized_client" in txt:
         return ("O Client ID/Secret está errado ou foi apagado no Google Cloud. "
                 "Apague o oauth_client.json e o oauth.json e rode o configurar_login.bat de novo.")
